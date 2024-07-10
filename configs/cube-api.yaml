@@ -1,0 +1,22 @@
+kind: http
+metadata:
+  name: cube-api
+  policy: /etc/settings.txt
+spec:
+  runtime: gin
+  auth:
+    openstack: /etc/admin-openrc.sh
+    k3s: /etc/rancher/k3s/k3s.yaml
+  access:
+    port: 8001
+    address:
+      local: 0.0.0.0
+      advertise: 0.0.0.0
+  log:
+    file: /var/log/cube-api.log
+    level: 2
+    rotation:
+      backups: 3
+      size: 20
+      ttl: 30
+      compress: true

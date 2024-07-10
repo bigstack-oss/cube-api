@@ -1,0 +1,24 @@
+version: '3'
+
+tasks:
+  update-api-docs:
+    cmds:
+    - swag init --output ./api -g ./cmd/main.go ./cmd/plugins.go
+  dev-run:
+    cmds:
+    - go run cmd/main.go cmd/plugins.go -confPath configs/cube-api.yaml
+  binary-to-180:
+    cmds:
+    - GOOS=linux GOARCH=amd64 go build -o cube-api cmd/main.go cmd/plugins.go
+    - scp cube-api root@10.32.10.180:/root/
+    - scp configs/cube-api.yaml root@10.32.10.180:/root/
+  binary-to-140:
+    cmds:
+    - GOOS=linux GOARCH=amd64 go build -o cube-api cmd/main.go cmd/plugins.go
+    - scp cube-api root@10.32.10.141:/root/
+    - scp configs/cube-api.yaml root@10.32.10.141:/root/
+    - scp cube-api root@10.32.10.142:/root/
+    - scp configs/cube-api.yaml root@10.32.10.142:/root/
+    - scp cube-api root@10.32.10.143:/root/
+    - scp configs/cube-api.yaml root@10.32.10.143:/root/
+  
