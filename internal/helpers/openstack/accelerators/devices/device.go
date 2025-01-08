@@ -78,7 +78,7 @@ func (d DevicePage) IsEmpty() (bool, error) {
 }
 
 func ExtractDevices(r pagination.Page) ([]Device, error) {
-	var d []Device
+	d := []Device{}
 	err := ExtractDevicesInto(r, &d)
 	return d, err
 }
@@ -87,10 +87,12 @@ func (r DevicePage) NextPageURL() (string, error) {
 	var s struct {
 		Links []gophercloud.Link `json:"servers_links"`
 	}
+
 	err := r.ExtractInto(&s)
 	if err != nil {
 		return "", err
 	}
+
 	return gophercloud.ExtractNextURL(s.Links)
 }
 

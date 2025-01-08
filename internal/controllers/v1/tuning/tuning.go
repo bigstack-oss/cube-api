@@ -3,9 +3,9 @@ package tuning
 import (
 	"time"
 
-	definition "github.com/bigstack-oss/cube-api/internal/definition/v1"
-	"github.com/bigstack-oss/cube-api/internal/helpers/mongo"
-	"github.com/bigstack-oss/cube-api/internal/service"
+	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/helpers/mongo"
+	"github.com/bigstack-oss/cube-cos-api/internal/service"
 	"k8s.io/client-go/util/workqueue"
 )
 

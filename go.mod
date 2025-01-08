@@ -1,4 +1,4 @@
-module github.com/bigstack-oss/cube-api
+module github.com/bigstack-oss/cube-cos-api
 
 go 1.22.2
 

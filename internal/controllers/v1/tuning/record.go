@@ -1,8 +1,9 @@
 package tuning
 
 import (
-	definition "github.com/bigstack-oss/cube-api/internal/definition/v1"
-	"github.com/bigstack-oss/cube-api/internal/helpers/mongo"
+	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/helpers/mongo"
+	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -23,9 +24,9 @@ func (c *Controller) updateTuningResult(tuning definition.Tuning) error {
 
 func (c *Controller) handleApplyingExit(tuning definition.Tuning, err error) {
 	if err == nil {
-		tuning.Status.Current = definition.Applied
+		tuning.Status.Current = status.Completed
 	} else {
-		tuning.Status.Current = definition.Failed
+		tuning.Status.Current = status.Error
 		log.Errorf("Failed to %s tuning %s: %s", tuning.Status.Desired, tuning.Name, err.Error())
 	}
 
@@ -54,15 +55,15 @@ func (c *Controller) handleDeletionExit(tuning definition.Tuning, err error) {
 		return
 	}
 
-	tuning.Status.Current = definition.Failed
+	tuning.Status.Current = status.Error
 	log.Errorf("Failed to %s tuning %s: %s", tuning.Status.Desired, tuning.Name, err.Error())
 }
 
 func (c *Controller) handleExit(tuning definition.Tuning, err error) {
 	switch tuning.Status.Desired {
-	case definition.Create, definition.Update:
+	case status.Create, status.Update:
 		c.handleApplyingExit(tuning, err)
-	case definition.Delete:
+	case status.Delete:
 		c.handleDeletionExit(tuning, err)
 	}
 }

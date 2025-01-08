@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/bigstack-oss/cube-api/internal/helpers/log"
+	"github.com/bigstack-oss/cube-cos-api/internal/helpers/log"
 	yaml "github.com/go-micro/plugins/v5/config/encoder/yaml"
 	"go-micro.dev/v5/config"
 	"go-micro.dev/v5/config/reader"
@@ -10,33 +10,33 @@ import (
 )
 
 var (
-	Conf Config
+	Data Payload
 )
 
-type Config struct {
+type Payload struct {
 	Kind     string `json:"kind"`
 	Metadata `json:"metadata"`
 	Spec     `json:"spec"`
 }
 
 type Metadata struct {
-	Name   string `json:"name"`
-	Policy string `json:"policy"`
+	Name string `json:"name"`
 }
 
 type Spec struct {
-	Runtime string `json:"runtime"`
-	Auth    `json:"auth"`
-	Access  `json:"access"`
-	Log     log.Options `json:"log"`
+	Runtime    string `json:"runtime"`
+	Dependency `json:"auth"`
+	Listen     `json:"listen"`
+	Log        log.Options `json:"log"`
 }
 
-type Auth struct {
+type Dependency struct {
+	CubeCos   string `json:"cubeCos"`
 	Openstack string `json:"openstack"`
 	K3s       string `json:"k3s"`
 }
 
-type Access struct {
+type Listen struct {
 	Port    int `json:"port"`
 	Address `json:"Address"`
 }

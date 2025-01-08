@@ -1,8 +1,9 @@
 package service
 
 import (
-	definition "github.com/bigstack-oss/cube-api/internal/definition/v1"
-	"github.com/bigstack-oss/cube-api/internal/runtime"
+	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	cuberr "github.com/bigstack-oss/cube-cos-api/internal/error"
+	"github.com/bigstack-oss/cube-cos-api/internal/runtime"
 	log "go-micro.dev/v5/logger"
 	"go-micro.dev/v5/registry"
 )
@@ -44,7 +45,7 @@ func GetNodesByRole(roleName string) ([]definition.Node, error) {
 		return nil, err
 	}
 	if len(svcs) == 0 {
-		return nil, definition.ErrServiceNotFound
+		return nil, cuberr.ServiceNotFound
 	}
 
 	nodes := []definition.Node{}

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/bigstack-oss/cube-api/internal/controllers/v1/tuning"
-	definition "github.com/bigstack-oss/cube-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/controllers/v1/tuning"
+	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/gin-gonic/gin"
 	"github.com/mohae/deepcopy"
 )
@@ -112,8 +112,8 @@ func updateTuningStatus(c *gin.Context) {
 		return
 	}
 
-	tuning.SetCurrentToApplied()
-	tuning.SetDesiredToUpdate()
+	tuning.Status.SetCurrentToCompleted()
+	tuning.Status.SetDesiredToUpdate()
 	err = updateRecordStatus(tuning)
 	if err != nil {
 		c.JSON(
@@ -147,7 +147,7 @@ func deleteTuning(c *gin.Context) {
 		return
 	}
 
-	tuning.SetDesiredToDelete()
+	tuning.Status.SetDesiredToDelete()
 	syncTuningRecord(*tuning)
 	reqQueue.Add(tuning)
 	c.JSON(

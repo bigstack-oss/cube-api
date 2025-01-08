@@ -3,8 +3,8 @@ package tuning
 import (
 	"context"
 
-	definition "github.com/bigstack-oss/cube-api/internal/definition/v1"
-	"github.com/bigstack-oss/cube-api/internal/service"
+	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/service"
 	log "go-micro.dev/v5/logger"
 	"go-micro.dev/v5/registry"
 )

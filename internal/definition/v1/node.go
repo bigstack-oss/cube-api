@@ -23,10 +23,14 @@ type Node struct {
 	Labels   map[string]string `json:"labels,omitempty" yaml:"labels,omitempty" bson:"labels,omitempty"`
 }
 
-func GenerateNodeHashByMacAddr() string {
-	macAddr := GetMacAddr(NetMajorInterface)
+func GenerateNodeHashByMacAddr() (string, error) {
+	macAddr, err := GetMacAddr(NetMajorInterface)
+	if err != nil {
+		return "", err
+	}
+
 	hash := sha256.Sum256([]byte(macAddr))
-	return hex.EncodeToString(hash[:])[:8]
+	return hex.EncodeToString(hash[:])[:8], nil
 }
 
 func GetNodesByRole(svcName string) ([]*Node, error) {

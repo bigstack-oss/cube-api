@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"io"
 
-	definition "github.com/bigstack-oss/cube-api/internal/definition/v1"
-	"github.com/bigstack-oss/cube-api/internal/runtime"
+	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/runtime"
 )
 
 func decodeTuningReq(reqBody io.ReadCloser) (*definition.Tuning, error) {

@@ -3,7 +3,7 @@ package api
 import (
 	"fmt"
 
-	definition "github.com/bigstack-oss/cube-api/internal/definition/v1"
+	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/gin-gonic/gin"
 )
 

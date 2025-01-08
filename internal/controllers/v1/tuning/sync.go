@@ -3,16 +3,17 @@ package tuning
 import (
 	"fmt"
 
-	"github.com/bigstack-oss/cube-api/internal/cubeos"
-	definition "github.com/bigstack-oss/cube-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	log "go-micro.dev/v5/logger"
 )
 
 func (c *Controller) syncByDesiredAction(tuning definition.Tuning) error {
 	switch tuning.Status.Desired {
-	case definition.Create, definition.Update:
+	case status.Create, status.Update:
 		return c.applyTuning(tuning)
-	case definition.Delete:
+	case status.Delete:
 		return c.deleteTuning(tuning)
 	}
 
@@ -24,20 +25,20 @@ func (c *Controller) syncByDesiredAction(tuning definition.Tuning) error {
 }
 
 func (c *Controller) deleteTuning(tuning definition.Tuning) error {
-	etcTunings, err := cubeos.GetEtcPoliciesTunings()
+	policy, err := cubecos.GetPolicy()
 	if err != nil {
 		log.Errorf("Failed to get all tunings: %s", err.Error())
 		return err
 	}
 
-	etcTunings.RemoveTuning(tuning.Name)
-	err = cubeos.HexTuningConfigure(etcTunings.Tunings)
+	policy.DeleteTuning(tuning.Name)
+	err = cubecos.ApplyHexTunings(policy.Tunings)
 	if err != nil {
 		log.Errorf("Failed to delete tunings: %s", err.Error())
 		return err
 	}
 
-	err = cubeos.IsHexTuningDeleted(tuning)
+	err = cubecos.IsHexTuningDeleted(tuning)
 	if err != nil {
 		log.Errorf("Failed to check if tuning %s is deleted: %s", tuning.Name, err.Error())
 		return err
@@ -47,19 +48,19 @@ func (c *Controller) deleteTuning(tuning definition.Tuning) error {
 }
 
 func (c *Controller) applyTuning(tuning definition.Tuning) error {
-	etcTunings, err := cubeos.GetEtcPoliciesTunings()
+	policy, err := cubecos.GetPolicy()
 	if err != nil {
 		return err
 	}
 
-	etcTunings.AppendTunings([]definition.Tuning{tuning})
-	err = cubeos.HexTuningConfigure(etcTunings.Tunings)
+	policy.AppendTunings([]definition.Tuning{tuning})
+	err = cubecos.ApplyHexTunings(policy.Tunings)
 	if err != nil {
 		log.Errorf("Failed to apply tuning %s: %s", tuning.Name, err.Error())
 		return err
 	}
 
-	err = cubeos.IsHexTuningApplied(tuning)
+	err = cubecos.IsHexTuningApplied(tuning)
 	if err != nil {
 		log.Errorf("Failed to check if tuning %s is applied: %s", tuning.Name, err.Error())
 		return err

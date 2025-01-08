@@ -1,10 +1,10 @@
 package tuning
 
 import (
-	definition "github.com/bigstack-oss/cube-api/internal/definition/v1"
+	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 )
 
-func filterNodeByLabels(nodes []*definition.Node, selector definition.Selector) []*definition.Node {
+func listNodesBySelector(nodes []*definition.Node, selector definition.Selector) []*definition.Node {
 	if !selector.Enabled {
 		return nodes
 	}
@@ -24,7 +24,7 @@ func filterNodeByLabels(nodes []*definition.Node, selector definition.Selector) 
 
 func selectRolesUsingActivityAndLabels(tuningSpec *definition.TuningSpec) []*definition.Role {
 	for i, role := range tuningSpec.Roles {
-		tuningSpec.Roles[i].Nodes = filterNodeByLabels(role.Nodes, tuningSpec.Selector)
+		tuningSpec.Roles[i].Nodes = listNodesBySelector(role.Nodes, tuningSpec.Selector)
 	}
 
 	roles := []*definition.Role{}

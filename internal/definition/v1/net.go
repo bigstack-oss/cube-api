@@ -9,10 +9,10 @@ const (
 	NetMajorInterface = "eth0"
 )
 
-func GetMacAddr(interfaceName string) string {
+func GetMacAddr(interfaceName string) (string, error) {
 	nets, err := net.Interfaces()
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
 	macAddr := ""
@@ -23,9 +23,8 @@ func GetMacAddr(interfaceName string) string {
 		}
 	}
 	if macAddr == "" {
-		err := fmt.Errorf("mac address not found from interface: %s", interfaceName)
-		panic(err)
+		return "", fmt.Errorf("mac address not found from interface: %s", interfaceName)
 	}
 
-	return macAddr
+	return macAddr, nil
 }

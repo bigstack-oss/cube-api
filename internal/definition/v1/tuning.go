@@ -3,6 +3,7 @@ package v1
 import (
 	"sync"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	json "github.com/json-iterator/go"
 )
 
@@ -14,7 +15,7 @@ var (
 	tuningSpecs = sync.Map{}
 )
 
-type TuningTemplate struct {
+type Policy struct {
 	Name    string   `json:"name" yaml:"name"`
 	Version string   `json:"version" yaml:"version"`
 	Enabled bool     `json:"enabled" yaml:"enabled"`
@@ -42,7 +43,7 @@ type Tuning struct {
 	Value   string `json:"value" yaml:"value"`
 
 	Node   `json:"node,omitempty" yaml:"node,omitempty" bson:"node,omitempty"`
-	Status `json:"status,omitempty" yaml:"status,omitempty" bson:"status,omitempty"`
+	Status status.Details `json:"status,omitempty" yaml:"status,omitempty" bson:"status,omitempty"`
 }
 
 func SetSpecToTuning(tuningName string, tuningSpec *TuningSpec) {
@@ -95,11 +96,11 @@ func (t *Tuning) SetNodeInfo(role, address string) {
 	}
 }
 
-func (t *TuningTemplate) AppendTunings(tunings []Tuning) {
+func (t *Policy) AppendTunings(tunings []Tuning) {
 	t.Tunings = append(t.Tunings, tunings...)
 }
 
-func (t *TuningTemplate) RemoveTuning(tuningName string) {
+func (t *Policy) DeleteTuning(tuningName string) {
 	newTunings := []Tuning{}
 	for _, tuning := range t.Tunings {
 		if tuning.Name != tuningName {

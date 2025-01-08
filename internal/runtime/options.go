@@ -1,9 +1,9 @@
 package runtime
 
-import "github.com/bigstack-oss/cube-api/internal/helpers/log"
+import "github.com/bigstack-oss/cube-cos-api/internal/helpers/log"
 
 var (
-	Conf Config
+	conf Config
 )
 
 type Config struct {
@@ -20,7 +20,7 @@ type Metadata struct {
 type Spec struct {
 	Runtime string `json:"runtime"`
 	Auth    `json:"auth"`
-	Access  `json:"access"`
+	Listen  `json:"listen"`
 	Log     log.Options `json:"log"`
 }
 
@@ -29,7 +29,7 @@ type Auth struct {
 	K3s       string `json:"k3s"`
 }
 
-type Access struct {
+type Listen struct {
 	Port    int `json:"port"`
 	Address `json:"Address"`
 }

@@ -3,8 +3,8 @@ package tuning
 import (
 	"net/http"
 
-	"github.com/bigstack-oss/cube-api/internal/api"
-	definition "github.com/bigstack-oss/cube-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/api"
+	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 )
 
 var (

@@ -3,9 +3,9 @@ package main
 import (
 	"flag"
 
-	"github.com/bigstack-oss/cube-api/internal/config"
-	"github.com/bigstack-oss/cube-api/internal/runtime"
-	"github.com/bigstack-oss/cube-api/internal/service"
+	"github.com/bigstack-oss/cube-cos-api/internal/config"
+	"github.com/bigstack-oss/cube-cos-api/internal/runtime"
+	"github.com/bigstack-oss/cube-cos-api/internal/service"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -18,7 +18,7 @@ func init() {
 	flag.Parse()
 }
 
-// @title     Cube API
+// @title     Cube COS API
 // @version   1.0
 // @BasePath  /api
 func main() {

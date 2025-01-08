@@ -1,11 +1,11 @@
-package cubeos
+package cubecos
 
 import (
 	"fmt"
 
-	definition "github.com/bigstack-oss/cube-api/internal/definition/v1"
-	"github.com/bigstack-oss/cube-api/internal/helpers/openstack"
-	"github.com/bigstack-oss/cube-api/internal/helpers/openstack/accelerators/devices"
+	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/helpers/openstack"
+	"github.com/bigstack-oss/cube-cos-api/internal/helpers/openstack/accelerators/devices"
 	log "go-micro.dev/v5/logger"
 )
 

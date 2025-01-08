@@ -7,9 +7,10 @@ import (
 	"net/http"
 	"net/url"
 
-	definition "github.com/bigstack-oss/cube-api/internal/definition/v1"
-	cubeHttp "github.com/bigstack-oss/cube-api/internal/helpers/http"
-	"github.com/bigstack-oss/cube-api/internal/service"
+	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	cuberr "github.com/bigstack-oss/cube-cos-api/internal/error"
+	cubeHttp "github.com/bigstack-oss/cube-cos-api/internal/helpers/http"
+	"github.com/bigstack-oss/cube-cos-api/internal/service"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -42,7 +43,7 @@ func delegateToOtherNodes(tuning definition.Tuning) {
 			continue
 		}
 
-		if errors.Is(err, definition.ErrServiceNotFound) {
+		if errors.Is(err, cuberr.ServiceNotFound) {
 			continue
 		}
 		log.Errorf(
@@ -62,7 +63,7 @@ func sendTuningToOtherNodes(tuning definition.Tuning, nodes []definition.Node) {
 		}
 
 		resp, code := cubeHttp.NewHelper().Send(tuningReq)
-		if cubeHttp.Is2XXCode[code] {
+		if cubeHttp.Is2XXCode(code) {
 			continue
 		}
 

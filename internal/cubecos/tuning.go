@@ -1,4 +1,4 @@
-package cubeos
+package cubecos
 
 import (
 	"errors"
@@ -8,14 +8,15 @@ import (
 	"os/exec"
 	"strings"
 
-	definition "github.com/bigstack-oss/cube-api/internal/definition/v1"
+	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	cuberr "github.com/bigstack-oss/cube-cos-api/internal/error"
 	"github.com/google/uuid"
 	log "go-micro.dev/v5/logger"
 	"gopkg.in/yaml.v2"
 )
 
 const (
-	EtcPoliciesTuning = "/etc/policies/tuning/tuning1_0.yml"
+	policyFile = "/etc/policies/tuning/tuning1_0.yml"
 
 	BarbicanDebugEnabled        = "barbican.debug.enabled"
 	CephDebugEnabled            = "ceph.debug.enabled"
@@ -811,14 +812,14 @@ func init() {
 	definition.SetSpecToTuning(CubesysAlertLevelS, CubesysAlertLevelSSpec)
 	definition.SetSpecToTuning(CubesysConntableMax, CubesysConntableMaxSpec)
 	definition.SetSpecToTuning(CubesysLogDefaultRetention, CubesysLogDefaultRetentionSpec)
-	definition.SetSpecToTuning(CubesysProviderExtra, CubesysProviderExtraSpec) // no setup logic in cubeos
+	definition.SetSpecToTuning(CubesysProviderExtra, CubesysProviderExtraSpec) // no setup logic in cubecos
 	definition.SetSpecToTuning(CyborgDebugEnabled, CyborgDebugEnabledSpec)
 	definition.SetSpecToTuning(DebugEnableCoreDumpS, DebugEnableCoreDumpSSpec)
 	definition.SetSpecToTuning(DebugEnableKdump, DebugEnableKdumpSpec)
 	definition.SetSpecToTuning(DebugLevelS, DebugLevelSSpec)
 	definition.SetSpecToTuning(DebugMaxCoreDump, DebugMaxCoreDumpSpec)
 	definition.SetSpecToTuning(DesignateDebugEnabled, DesignateDebugEnabledSpec) // need to check edge part
-	definition.SetSpecToTuning(GlanceDebugEnabled, GlanceDebugEnabledSpec)       // no setup logic in cubeos
+	definition.SetSpecToTuning(GlanceDebugEnabled, GlanceDebugEnabledSpec)       // no setup logic in cubecos
 	definition.SetSpecToTuning(GlanceExportRp, GlanceExportRpSpec)
 	definition.SetSpecToTuning(HeatDebugEnabled, HeatDebugEnabledSpec)
 	definition.SetSpecToTuning(InfluxdbCuratorRp, InfluxdbCuratorRpSpec)
@@ -831,7 +832,7 @@ func init() {
 	definition.SetSpecToTuning(KapacitorAlertFlowBase, KapacitorAlertFlowBaseSpec)
 	definition.SetSpecToTuning(KapacitorAlertFlowThreshold, KapacitorAlertFlowThresholdSpec)
 	definition.SetSpecToTuning(KapacitorAlertFlowUnit, KapacitorAlertFlowUnitSpec)
-	definition.SetSpecToTuning(KeystoneDebugEnabled, KeystoneDebugEnabledSpec) // no setup logic in cubeos
+	definition.SetSpecToTuning(KeystoneDebugEnabled, KeystoneDebugEnabledSpec) // no setup logic in cubecos
 	definition.SetSpecToTuning(ManilaDebugEnabled, ManilaDebugEnabledSpec)
 	definition.SetSpecToTuning(ManilaVolumeType, ManilaVolumeTypeSpec)
 	definition.SetSpecToTuning(MasakariHostEvacuateAll, MasakariHostEvacuateAllSpec)
@@ -850,14 +851,14 @@ func init() {
 	definition.SetSpecToTuning(NovaOvercommitCpuRatio, NovaOvercommitCpuRatioSpec)
 	definition.SetSpecToTuning(NovaOvercommitDiskRatio, NovaOvercommitDiskRatioSpec)
 	definition.SetSpecToTuning(NovaOvercommitRamRatio, NovaOvercommitRamRatioSpec)
-	definition.SetSpecToTuning(NtpDebugEnabled, NtpDebugEnabledSpec) // no setup logic in cubeos
+	definition.SetSpecToTuning(NtpDebugEnabled, NtpDebugEnabledSpec) // no setup logic in cubecos
 	definition.SetSpecToTuning(OctaviaDebugEnabled, OctaviaDebugEnabledSpec)
 	definition.SetSpecToTuning(OctaviaHa, OctaviaHaSpec)
 	definition.SetSpecToTuning(OpensearchCuratorRp, OpensearchCuratorRpSpec)
 	definition.SetSpecToTuning(OpensearchHeapSize, OpensearchHeapSizeSpec)
 	definition.SetSpecToTuning(SenlinDebugEnabled, SenlinDebugEnabledSpec)   // EOL in OpenStack, consider to remove
 	definition.SetSpecToTuning(SkylineDebugEnabled, SkylineDebugEnabledSpec) // why only check IsControl() but no IsConverged()
-	definition.SetSpecToTuning(SnapshotApplyAction, SnapshotApplyActionSpec) // no setup logic in cubeos
+	definition.SetSpecToTuning(SnapshotApplyAction, SnapshotApplyActionSpec) // no setup logic in cubecos
 	definition.SetSpecToTuning(SnapshotApplyPolicyIgnore, SnapshotApplyPolicyIgnoreSpec)
 	definition.SetSpecToTuning(SshdBindToAllInterfaces, SshdBindToAllInterfacesSpec)
 	definition.SetSpecToTuning(SshdSessionInactivity, SshdSessionInactivitySpec)
@@ -875,7 +876,7 @@ func HexTuningRead(parameterName string) (string, error) {
 
 	keyValue := strings.Split(string(b), "'")
 	if len(keyValue) < 2 {
-		return "", definition.ErrTuningParamNotFound
+		return "", cuberr.TuningParamNotFound
 	}
 
 	return keyValue[1], nil
@@ -904,7 +905,7 @@ func IsHexTuningApplied(tuning definition.Tuning) error {
 	return nil
 }
 
-func HexTuningConfigure(tunings []definition.Tuning) error {
+func ApplyHexTunings(tunings []definition.Tuning) error {
 	newTunings, err := genTuningsAsYaml(tunings)
 	if err != nil {
 		return err
@@ -925,7 +926,7 @@ func HexTuningConfigure(tunings []definition.Tuning) error {
 }
 
 func genTuningsAsYaml(tunings []definition.Tuning) ([]byte, error) {
-	tuningTemplate := definition.TuningTemplate{
+	tuningTemplate := definition.Policy{
 		Name:    "tuning",
 		Version: "1.0",
 		Enabled: true,
@@ -978,19 +979,19 @@ func ReleaseTuningLock() error {
 	return nil
 }
 
-func GetEtcPoliciesTunings() (*definition.TuningTemplate, error) {
-	b, err := os.ReadFile(EtcPoliciesTuning)
+func GetPolicy() (*definition.Policy, error) {
+	b, err := os.ReadFile(policyFile)
 	if err != nil {
 		return nil, err
 	}
 
-	ctcPoliciesTuning := &definition.TuningTemplate{}
-	err = yaml.Unmarshal(b, ctcPoliciesTuning)
+	policy := &definition.Policy{}
+	err = yaml.Unmarshal(b, policy)
 	if err != nil {
 		return nil, err
 	}
 
-	return ctcPoliciesTuning, nil
+	return policy, nil
 }
 
 func IsHexTuningDeleted(tuning definition.Tuning) error {
@@ -999,7 +1000,7 @@ func IsHexTuningDeleted(tuning definition.Tuning) error {
 		return fmt.Errorf("tuning value is not deleted: %s", tuning.Name)
 	}
 
-	if !errors.Is(err, definition.ErrTuningParamNotFound) {
+	if !errors.Is(err, cuberr.TuningParamNotFound) {
 		return fmt.Errorf("failed to check if tuning is deleted: %s", err.Error())
 	}
 

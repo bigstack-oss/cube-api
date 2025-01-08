@@ -19,11 +19,11 @@ lock("${JOB_NAME}-${BLDSRV}") {
                 echo "GIT_BRANCH_NAME = ${GIT_BRANCH_NAME}"
                 
                 try {
-                    checkout([$class: 'GitSCM', branches: [[name: "${GIT_BRANCH_NAME}"]], browser: [$class: 'GithubWeb', repoUrl: 'https://github.com/bigstack-oss/cube-api/'], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'GitLFSPull'], [$class: 'RelativeTargetDirectory', relativeTargetDir: "${PROJ_NAME}"]], userRemoteConfigs: [[url: "git@github.com:bigstack-oss/${PROJ_NAME}.git"]]])
+                    checkout([$class: 'GitSCM', branches: [[name: "${GIT_BRANCH_NAME}"]], browser: [$class: 'GithubWeb', repoUrl: 'https://github.com/bigstack-oss/cube-cos-api/'], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'GitLFSPull'], [$class: 'RelativeTargetDirectory', relativeTargetDir: "${PROJ_NAME}"]], userRemoteConfigs: [[url: "git@github.com:bigstack-oss/${PROJ_NAME}.git"]]])
                 } catch (e) {
                     echo "Failed to download repo., remove ${PROJ_NAME} source folder and try again!"
                     sh "sudo rm -rf ${PROJ_NAME}"
-                    checkout([$class: 'GitSCM', branches: [[name: "${GIT_BRANCH_NAME}"]], browser: [$class: 'GithubWeb', repoUrl: 'https://github.com/bigstack-oss/cube-api/'], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'GitLFSPull'], [$class: 'RelativeTargetDirectory', relativeTargetDir: "${PROJ_NAME}"]], userRemoteConfigs: [[url: "git@github.com:bigstack-oss/${PROJ_NAME}.git"]]])
+                    checkout([$class: 'GitSCM', branches: [[name: "${GIT_BRANCH_NAME}"]], browser: [$class: 'GithubWeb', repoUrl: 'https://github.com/bigstack-oss/cube-cos-api/'], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'GitLFSPull'], [$class: 'RelativeTargetDirectory', relativeTargetDir: "${PROJ_NAME}"]], userRemoteConfigs: [[url: "git@github.com:bigstack-oss/${PROJ_NAME}.git"]]])
                 }
             }
         }

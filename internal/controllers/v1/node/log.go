@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	"github.com/cnf/structhash"
 	"go-micro.dev/v5/cache"
 	log "go-micro.dev/v5/logger"
@@ -17,9 +18,9 @@ var (
 
 func convertAction(action string) string {
 	switch action {
-	case "create":
+	case status.Create:
 		return "joined"
-	case "delete":
+	case status.Delete:
 		return "left"
 	}
 
@@ -32,7 +33,9 @@ func logWithThrottling(event *registry.Result) {
 		return
 	}
 
-	_, _, err = logCache.Get(context.Background(), key)
+	getCtx, getCancel := context.WithTimeout(context.Background(), time.Second*10)
+	defer getCancel()
+	_, _, err = logCache.Get(getCtx, key)
 	if err == nil {
 		return
 	}
@@ -40,7 +43,13 @@ func logWithThrottling(event *registry.Result) {
 		return
 	}
 
-	logCache.Put(context.Background(), key, []byte{}, time.Second*10)
+	putCtx, putCancel := context.WithTimeout(context.Background(), time.Second*10)
+	defer putCancel()
+	err = logCache.Put(putCtx, key, []byte{}, time.Second*10)
+	if err != nil {
+		return
+	}
+
 	log.Infof(
 		"Node resynced: %s %s %s",
 		event.Service.Name,

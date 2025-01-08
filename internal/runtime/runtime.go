@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/bigstack-oss/cube-api/internal/api"
-	cubeConf "github.com/bigstack-oss/cube-api/internal/config"
-	"github.com/bigstack-oss/cube-api/internal/cubeos"
-	definition "github.com/bigstack-oss/cube-api/internal/definition/v1"
-	"github.com/bigstack-oss/cube-api/internal/helpers/log"
+	"github.com/bigstack-oss/cube-cos-api/internal/api"
+	"github.com/bigstack-oss/cube-cos-api/internal/auth"
+	apiConf "github.com/bigstack-oss/cube-cos-api/internal/config"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/helpers/log"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/micro/plugins/v5/server/http"
@@ -17,30 +18,27 @@ import (
 	"go-micro.dev/v5/server"
 )
 
-func RegisterHandlersToRolesByNodeRole(router *gin.Engine) error {
-	var err error
-	definition.CurrentRole, err = cubeos.GetNodeRole()
-	if err != nil {
-		logger.Errorf("failed to get node role: %s", err.Error())
-		return err
-	}
+func setGroupHandlersToRouter(router *gin.Engine, handlers []api.Handler) {
+	for _, h := range handlers {
+		if h.Version == "" {
+			logger.Warnf("Skip invalid API registration: %s %s (no version provided)", h.Method, h.Path)
+			continue
+		}
 
+		routerGroup := router.Group(h.Version)
+		routerGroup.Handle(h.Method, h.Path, h.Func)
+		logger.Infof("Register API: %s %s", h.Method, fmt.Sprintf("%s%s", h.Version, h.Path))
+	}
+}
+
+func RegisterHandlersByRole(router *gin.Engine) error {
 	groupHandlers := api.GetGroupHandlersByRole(definition.CurrentRole)
 	if len(groupHandlers) == 0 {
-		return fmt.Errorf("no handlers found for role: %s", definition.CurrentRole)
+		return fmt.Errorf("no handlers found for role(%s)", definition.CurrentRole)
 	}
 
 	for _, handlers := range groupHandlers {
-		for _, h := range handlers {
-			if h.Version == "" {
-				logger.Warnf("Skip invalid API registration: %s %s (no version provided)", h.Method, h.Path)
-				continue
-			}
-
-			routerGroup := router.Group(h.Version)
-			routerGroup.Handle(h.Method, h.Path, h.Func)
-			logger.Infof("Register API: %s %s", h.Method, fmt.Sprintf("%s%s", h.Version, h.Path))
-		}
+		setGroupHandlersToRouter(router, handlers)
 	}
 
 	return nil
@@ -58,22 +56,23 @@ func newRouter() *gin.Engine {
 	router := gin.New()
 	router.Use(gin.Recovery())
 	router.Use(initReqInfo)
+	router.Use(auth.VerifyReq())
 	return router
 }
 
 func serviceDiscoveryAddr() string {
 	return fmt.Sprintf(
 		"%s:%d",
-		cubeConf.Conf.Spec.Access.Address.Advertise,
-		cubeConf.Conf.Spec.Access.Port,
+		apiConf.Data.Spec.Listen.Address.Advertise,
+		apiConf.Data.Spec.Listen.Port,
 	)
 }
 
 func localAddr() string {
 	return fmt.Sprintf(
 		"%s:%d",
-		cubeConf.Conf.Spec.Access.Local,
-		cubeConf.Conf.Spec.Access.Port,
+		apiConf.Data.Spec.Listen.Local,
+		apiConf.Data.Spec.Listen.Port,
 	)
 }
 
@@ -83,19 +82,30 @@ func initNodeInfo() {
 		panic(err)
 	}
 
-	definition.HostID = definition.GenerateNodeHashByMacAddr()
+	hostID, err := definition.GenerateNodeHashByMacAddr()
+	if err != nil {
+		panic(err)
+	}
+
+	role, err := cubecos.GetNodeRole()
+	if err != nil {
+		panic(err)
+	}
+
+	definition.HostID = hostID
 	definition.Hostname = hostname
-	definition.IsGPUEnabled = cubeos.IsGPUEnabled()
+	definition.CurrentRole = role
+	definition.IsGPUEnabled = cubecos.IsGPUEnabled()
 }
 
 func initLogger() (logger.Logger, error) {
 	return log.NewCentralLogger(
-		log.File(cubeConf.Conf.Spec.Log.File),
-		log.Level(cubeConf.Conf.Spec.Log.Level),
-		log.Backups(cubeConf.Conf.Spec.Log.Rotation.Backups),
-		log.Size(cubeConf.Conf.Spec.Log.Rotation.Size),
-		log.TTL(cubeConf.Conf.Spec.Log.Rotation.TTL),
-		log.Compress(cubeConf.Conf.Spec.Log.Rotation.Compress),
+		log.File(apiConf.Data.Spec.Log.File),
+		log.Level(apiConf.Data.Spec.Log.Level),
+		log.Backups(apiConf.Data.Spec.Log.Rotation.Backups),
+		log.Size(apiConf.Data.Spec.Log.Rotation.Size),
+		log.TTL(apiConf.Data.Spec.Log.Rotation.TTL),
+		log.Compress(apiConf.Data.Spec.Log.Rotation.Compress),
 	)
 }
 
@@ -109,7 +119,7 @@ func genMetadata() map[string]string {
 
 func newHttpServer() (*server.Server, error) {
 	router := newRouter()
-	err := RegisterHandlersToRolesByNodeRole(router)
+	err := RegisterHandlersByRole(router)
 	if err != nil {
 		logger.Errorf("failed to register handlers: %s", err.Error())
 		return nil, err
@@ -133,7 +143,7 @@ func newHttpServer() (*server.Server, error) {
 }
 
 func NewRuntime(conf config.Config) (*server.Server, error) {
-	err := conf.Get().Scan(&cubeConf.Conf)
+	err := conf.Get().Scan(&apiConf.Data)
 	if err != nil {
 		logger.Errorf("failed to scan config: %s", err.Error())
 		return nil, err
@@ -147,6 +157,5 @@ func NewRuntime(conf config.Config) (*server.Server, error) {
 
 	showPromptMessage()
 	initNodeInfo()
-
 	return newHttpServer()
 }

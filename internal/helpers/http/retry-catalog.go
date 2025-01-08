@@ -3,7 +3,7 @@ package http
 import "net/http"
 
 var (
-	Is2XXCode = map[int]bool{
+	code2xx = map[int]bool{
 		http.StatusOK:                   true,
 		http.StatusCreated:              true,
 		http.StatusAccepted:             true,
@@ -16,7 +16,7 @@ var (
 		http.StatusIMUsed:               true,
 	}
 
-	Is4XXCode = map[int]bool{
+	code4xx = map[int]bool{
 		http.StatusBadRequest:                   true,
 		http.StatusUnauthorized:                 true,
 		http.StatusPaymentRequired:              true,
@@ -62,3 +62,11 @@ var (
 		http.StatusNetworkAuthenticationRequired: true,
 	}
 )
+
+func Is2XXCode(code int) bool {
+	return code2xx[code]
+}
+
+func Is4XXCode(code int) bool {
+	return code4xx[code]
+}

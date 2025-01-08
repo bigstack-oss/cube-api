@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/bigstack-oss/cube-api/internal/config"
+	"github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack"
 	log "go-micro.dev/v5/logger"
@@ -69,7 +69,7 @@ func NewConf(file string) (*Options, error) {
 }
 
 func syncOptions(opts []Option) (*Options, error) {
-	options, err := NewConf(config.Conf.Spec.Auth.Openstack)
+	options, err := NewConf(config.Data.Spec.Dependency.Openstack)
 	if err != nil {
 		return nil, err
 	}

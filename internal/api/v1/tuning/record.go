@@ -3,8 +3,8 @@ package tuning
 import (
 	"context"
 
-	definition "github.com/bigstack-oss/cube-api/internal/definition/v1"
-	cubeMongo "github.com/bigstack-oss/cube-api/internal/helpers/mongo"
+	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	cubeMongo "github.com/bigstack-oss/cube-cos-api/internal/helpers/mongo"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"

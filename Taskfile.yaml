@@ -1,24 +1,21 @@
 version: '3'
 
 tasks:
+  run-dev-api:
+    cmds:
+    - go run cmd/main.go cmd/plugins.go -confPath configs/cube-api.yaml
+  dev-dev-mongo:
+    cmds:
+    - docker run -d -p 27017:27017 --name cube-mongo mongo:4.2
+  vet:
+    cmds:
+    - go vet ./...
+  test:
+    cmds:
+    - go test -v ./...
+  binary:
+    cmds:
+    - GOOS=linux GOARCH=amd64 go build -o bin/cube-api cmd/main.go cmd/plugins.go
   update-api-docs:
     cmds:
     - swag init --output ./api -g ./cmd/main.go ./cmd/plugins.go
-  dev-run:
-    cmds:
-    - go run cmd/main.go cmd/plugins.go -confPath configs/cube-api.yaml
-  binary-to-180:
-    cmds:
-    - GOOS=linux GOARCH=amd64 go build -o cube-api cmd/main.go cmd/plugins.go
-    - scp cube-api root@10.32.10.180:/root/
-    - scp configs/cube-api.yaml root@10.32.10.180:/root/
-  binary-to-140:
-    cmds:
-    - GOOS=linux GOARCH=amd64 go build -o cube-api cmd/main.go cmd/plugins.go
-    - scp cube-api root@10.32.10.141:/root/
-    - scp configs/cube-api.yaml root@10.32.10.141:/root/
-    - scp cube-api root@10.32.10.142:/root/
-    - scp configs/cube-api.yaml root@10.32.10.142:/root/
-    - scp cube-api root@10.32.10.143:/root/
-    - scp configs/cube-api.yaml root@10.32.10.143:/root/
-  

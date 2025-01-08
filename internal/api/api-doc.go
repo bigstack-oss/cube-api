@@ -3,7 +3,7 @@ package api
 import (
 	"net/http"
 
-	definition "github.com/bigstack-oss/cube-api/internal/definition/v1"
+	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	ginFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
