@@ -2,6 +2,7 @@ package tuning
 
 import (
 	"context"
+	"time"
 
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	cubeMongo "github.com/bigstack-oss/cube-cos-api/internal/helpers/mongo"
@@ -12,27 +13,26 @@ import (
 )
 
 func getTuningRecords() ([]definition.Tuning, error) {
-	mdb := cubeMongo.NewHelper(cubeMongo.NewDefaultConf("tuning"))
-	defer mdb.Disconnect(context.Background())
+	db := cubeMongo.GetGlobalHelper()
+	defer db.Disconnect(context.Background())
 
-	colls, err := mdb.GetAllCollections(definition.TuningDB())
+	colls, err := db.GetAllCollections(definition.TuningDB())
 	if err != nil {
 		return nil, err
 	}
 
 	tunings := []definition.Tuning{}
 	for _, coll := range colls {
-		cursor, err := mdb.GetQueryCursor(
-			definition.TuningDB(),
-			coll,
-			bson.M{},
-		)
+		cursor, err := db.GetQueryCursor(definition.TuningDB(), coll, bson.M{})
 		if err != nil {
 			log.Errorf("Failed to get cursor for %s (%s)", coll, err.Error())
 			continue
 		}
 
 		appendTuningRecords(cursor, &tunings)
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		cursor.Close(ctx)
+		cancel()
 	}
 
 	return tunings, nil
@@ -54,12 +54,12 @@ func appendTuningRecords(cursor *mongo.Cursor, tunings *[]definition.Tuning) {
 }
 
 func syncTuningRecord(tuning definition.Tuning) {
-	mdb := cubeMongo.NewHelper(cubeMongo.NewDefaultConf("tuning"))
-	defer mdb.Disconnect(context.Background())
+	db := cubeMongo.GetGlobalHelper()
+	defer db.Disconnect(context.Background())
+
 	filter := bson.M{"node.id": tuning.Node.ID, "name": tuning.Name}
 	update := bson.M{"$set": tuning}
-
-	err := mdb.UpdateOne(
+	err := db.UpdateOne(
 		definition.TuningDB(),
 		definition.TuningCollection(tuning.Name),
 		filter,
@@ -76,10 +76,10 @@ func syncTuningRecord(tuning definition.Tuning) {
 }
 
 func updateRecordStatus(tuning *definition.Tuning) error {
-	mdb := cubeMongo.NewHelper(cubeMongo.NewDefaultConf("tuning"))
-	defer mdb.Disconnect(context.Background())
+	db := cubeMongo.GetGlobalHelper()
+	defer db.Disconnect(context.Background())
 
-	return mdb.UpdateOne(
+	return db.UpdateOne(
 		definition.TuningDB(),
 		definition.TuningCollection(tuning.Name),
 		bson.M{"node.id": tuning.Node.ID, "name": tuning.Name},

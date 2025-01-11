@@ -3,6 +3,7 @@ package mongo
 import (
 	"context"
 	"fmt"
+	"sync"
 	"time"
 
 	log "go-micro.dev/v5/logger"
@@ -13,6 +14,9 @@ import (
 
 var (
 	CreateRecordIfNotExist = options.Update().SetUpsert(true)
+
+	helper *Helper
+	once   sync.Once
 )
 
 type Client interface {
@@ -51,56 +55,77 @@ type CursorClient interface {
 
 type Helper struct {
 	Client
-	Config
+	Options
 }
 
-type Config struct {
-	Sockets    string `validate:"required"`
-	Auth       `validate:"required"`
-	ReplicaSet string
-	Connect    string
-
-	Database    string
-	Collection  string
-	Databases   map[string]string
-	Collections map[string]string
-
-	Fetch
-}
-
-type Auth struct {
-	Enable   bool
-	Source   string
-	Username string
-	Password string
-}
-
-type Fetch struct {
-	Interval time.Duration
-	Number   int
-	Retry    int
-}
-
-func NewHelper(conf Config) *Helper {
-	h := Helper{Config: conf}
-	h.SetMongoClient()
-	return &h
-}
-
-func NewDefaultConf(db string) Config {
-	return Config{
-		Sockets:    "mongodb://0.0.0.0:27019/?directConnection=true",
-		Database:   db,
-		ReplicaSet: "rs0",
-		// Auth: Auth{
-		// 	Enable:   true,
-		// 	Username: "root",
-		// 	Password: "example",
-		// },
-		Fetch: Fetch{
-			Retry: 3,
-		},
+func initOptions(opts []Option) *Options {
+	options := &Options{Auth: Auth{Enable: true}}
+	for _, o := range opts {
+		o(options)
 	}
+
+	return options
+}
+
+func NewHelper(opts ...Option) (*Helper, error) {
+	initedOpts := initOptions(opts)
+	h := &Helper{Options: *initedOpts}
+
+	err := h.SetMongoClient()
+	if err != nil {
+		return nil, err
+	}
+
+	return h, nil
+}
+
+func NewGlobalHelper(opts ...Option) error {
+	var h *Helper
+	var err error
+
+	once.Do(func() {
+		h, err = NewHelper(opts...)
+		if err != nil {
+			return
+		}
+
+		helper = h
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (h *Helper) SetMongoClient() error {
+	opt := options.Client()
+	opt.ApplyURI(h.Uri)
+
+	if h.Auth.Enable {
+		opt.Auth = &options.Credential{
+			AuthSource: h.Auth.Source,
+			Username:   h.Auth.Username,
+			Password:   h.Auth.Password,
+		}
+	}
+
+	if h.ReplicaSet != "" {
+		opt.ReplicaSet = &h.ReplicaSet
+	}
+
+	mongoCli, err := mongo.Connect(context.Background(), opt)
+	if err != nil {
+		log.Errorf("err of connect mongo: %s", err.Error())
+		return err
+	}
+
+	h.Client = mongoCli
+	return nil
+}
+
+func GetGlobalHelper() *Helper {
+	return helper
 }
 
 func (h *Helper) NewDBCli(db string) (DBClient, error) {
@@ -122,8 +147,8 @@ func (h *Helper) NewCollCli(db, coll string) (CollClient, error) {
 			coll,
 		)
 	}
-	dbCli := h.Client.Database(db)
 
+	dbCli := h.Client.Database(db)
 	return dbCli.Collection(coll), nil
 }
 
@@ -177,29 +202,6 @@ func (h *Helper) GetCount(db, coll string, filter bson.M) (int64, error) {
 	}
 
 	return count, nil
-}
-
-func (h *Helper) SetMongoClient() {
-	opt := options.Client()
-	opt.ApplyURI(h.Sockets)
-
-	if h.Auth.Enable {
-		opt.Auth = &options.Credential{
-			AuthSource: h.Auth.Source,
-			Username:   h.Auth.Username,
-			Password:   h.Auth.Password,
-		}
-	}
-
-	if h.ReplicaSet != "" {
-		opt.ReplicaSet = &h.ReplicaSet
-	}
-
-	var err error
-	h.Client, err = mongo.Connect(context.Background(), opt)
-	if err != nil {
-		log.Errorf("err of connect mongo: %s", err.Error())
-	}
 }
 
 func (h *Helper) Insert(db, coll string, data interface{}) error {

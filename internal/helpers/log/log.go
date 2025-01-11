@@ -10,21 +10,6 @@ import (
 	rotator "gopkg.in/natefinch/lumberjack.v2"
 )
 
-const (
-	defaultPath       = "/var/log/cube-api.log"
-	defaultLevel      = 2
-	defaultMaxSize    = 10
-	defaultMaxBackups = 3
-	defaultMaxAge     = 28
-	defaultCompress   = true
-)
-
-var (
-	Opts *Options
-)
-
-type Option func(*Options)
-
 func newMultiWriteSyncer(rotator zapcore.WriteSyncer) zapcore.WriteSyncer {
 	return zapcore.NewMultiWriteSyncer(
 		zapcore.AddSync(rotator),
@@ -40,14 +25,14 @@ func newEncoder() zapcore.Encoder {
 	return zapcore.NewConsoleEncoder(conf)
 }
 
-func newLogRotator() zapcore.WriteSyncer {
+func newLogRotator(opts *Options) zapcore.WriteSyncer {
 	return zapcore.AddSync(
 		&rotator.Logger{
-			Filename:   Opts.File,
-			MaxSize:    Opts.Rotation.Size,
-			MaxBackups: Opts.Rotation.Backups,
-			MaxAge:     Opts.Rotation.TTL,
-			Compress:   Opts.Rotation.Compress,
+			Filename:   opts.File,
+			MaxSize:    opts.Rotation.Size,
+			MaxBackups: opts.Rotation.Backups,
+			MaxAge:     opts.Rotation.TTL,
+			Compress:   opts.Rotation.Compress,
 		},
 	)
 }
@@ -64,8 +49,8 @@ func newLogger(rotator zapcore.WriteSyncer) (logger.Logger, error) {
 	)
 }
 
-func initOptions(opts []Option) {
-	Opts = &Options{
+func initOptions(opts []Option) *Options {
+	options := &Options{
 		File:  defaultPath,
 		Level: defaultLevel,
 		Rotation: Rotation{
@@ -77,11 +62,20 @@ func initOptions(opts []Option) {
 	}
 
 	for _, o := range opts {
-		o(Opts)
+		o(options)
 	}
+
+	return options
 }
 
-func NewCentralLogger(opts ...Option) (logger.Logger, error) {
-	initOptions(opts)
-	return newLogger(newLogRotator())
+func NewGlobalHelper(opts ...Option) error {
+	initedOpts := initOptions(opts)
+
+	var err error
+	logger.DefaultLogger, err = newLogger(newLogRotator(initedOpts))
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -1,5 +1,16 @@
 package log
 
+const (
+	defaultPath       = "/var/log/cube-api.log"
+	defaultLevel      = 2
+	defaultMaxSize    = 10
+	defaultMaxBackups = 3
+	defaultMaxAge     = 28
+	defaultCompress   = true
+)
+
+type Option func(*Options)
+
 type Options struct {
 	File     string `json:"file"`
 	Level    int    `json:"level"`

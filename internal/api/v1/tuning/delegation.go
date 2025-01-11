@@ -1,10 +1,8 @@
 package tuning
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
-	"net/http"
 	"net/url"
 
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
@@ -55,15 +53,11 @@ func delegateToOtherNodes(tuning definition.Tuning) {
 }
 
 func sendTuningToOtherNodes(tuning definition.Tuning, nodes []definition.Node) {
-	for _, node := range nodes {
-		tuningReq, err := genTuningReq(node, tuning)
-		if err != nil {
-			log.Errorf("failed to create request for tuning %s (%s)", tuning.Name, err.Error())
-			continue
-		}
+	h := cubeHttp.GetGlobalHelper()
 
-		resp, code := cubeHttp.NewHelper().Send(tuningReq)
-		if cubeHttp.Is2XXCode(code) {
+	for _, node := range nodes {
+		resp, err := h.R().SetBody(tuning).Put(genUrl(node, tuning))
+		if !resp.IsError() && err == nil {
 			continue
 		}
 
@@ -71,28 +65,17 @@ func sendTuningToOtherNodes(tuning definition.Tuning, nodes []definition.Node) {
 			"Failed to send tuning %s to node %s: %d %s",
 			tuning.Name,
 			node.ID,
-			code,
-			string(resp),
+			resp.StatusCode(),
+			string(resp.Body()),
 		)
 	}
 }
 
-func genTuningReq(node definition.Node, tuning definition.Tuning) (*http.Request, error) {
+func genUrl(node definition.Node, tuning definition.Tuning) string {
 	u := url.URL{
 		Scheme: node.Protocol,
 		Host:   node.Address,
 		Path:   fmt.Sprintf("/api/v1/tunings/%s", tuning.Name),
 	}
-
-	b, err := tuning.Bytes()
-	if err != nil {
-		log.Errorf("failed to encode tuning %s (%s)", tuning.Name, err.Error())
-		return nil, err
-	}
-
-	return http.NewRequest(
-		http.MethodPut,
-		u.String(),
-		bytes.NewReader(b),
-	)
+	return u.String()
 }

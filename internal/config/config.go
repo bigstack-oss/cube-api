@@ -2,6 +2,7 @@ package config
 
 import (
 	"github.com/bigstack-oss/cube-cos-api/internal/helpers/log"
+	"github.com/bigstack-oss/cube-cos-api/internal/helpers/mongo"
 	yaml "github.com/go-micro/plugins/v5/config/encoder/yaml"
 	"go-micro.dev/v5/config"
 	"go-micro.dev/v5/config/reader"
@@ -25,8 +26,9 @@ type Metadata struct {
 
 type Spec struct {
 	Runtime    string `json:"runtime"`
-	Dependency `json:"auth"`
 	Listen     `json:"listen"`
+	Store      `json:"store"`
+	Dependency `json:"auth"`
 	Log        log.Options `json:"log"`
 }
 
@@ -39,6 +41,10 @@ type Dependency struct {
 type Listen struct {
 	Port    int `json:"port"`
 	Address `json:"Address"`
+}
+
+type Store struct {
+	MongoDB mongo.Options `json:"mongodb"`
 }
 
 type Address struct {

@@ -24,8 +24,7 @@ type Controller struct {
 }
 
 func NewController() *Controller {
-	m := mongo.NewHelper(mongo.NewDefaultConf("tuning"))
-	return &Controller{mongo: m}
+	return &Controller{mongo: mongo.GetGlobalHelper()}
 }
 
 func (c *Controller) Name() string {
