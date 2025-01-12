@@ -3,10 +3,10 @@ package cubecos
 import (
 	"fmt"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/accelerators/devices"
 	"github.com/bigstack-oss/cube-cos-api/internal/config"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
-	"github.com/bigstack-oss/cube-cos-api/internal/helpers/openstack"
-	"github.com/bigstack-oss/cube-cos-api/internal/helpers/openstack/accelerators/devices"
 	log "go-micro.dev/v5/logger"
 )
 

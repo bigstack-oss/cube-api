@@ -3,12 +3,13 @@ module github.com/bigstack-oss/cube-cos-api
 go 1.22.2
 
 require (
+	github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250112093313-b25ef3196c95
 	github.com/cnf/structhash v0.0.0-20201127153200-e1b16c1ebc08
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-micro/plugins/v5/config/encoder/yaml v1.0.0
 	github.com/go-resty/resty/v2 v2.16.3
 	github.com/google/uuid v1.3.0
-	github.com/gophercloud/gophercloud v1.14.0
+	github.com/gophercloud/gophercloud v1.14.1
 	github.com/json-iterator/go v1.1.12
 	github.com/micro/plugins/v5/logger/zap v1.0.2
 	github.com/micro/plugins/v5/server/http v1.0.2
@@ -20,7 +21,7 @@ require (
 	github.com/swaggo/gin-swagger v1.6.0
 	github.com/swaggo/swag v1.16.3
 	go-micro.dev/v5 v5.3.0
-	go.mongodb.org/mongo-driver v1.16.0
+	go.mongodb.org/mongo-driver v1.17.2
 	go.uber.org/zap v1.27.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 	gopkg.in/yaml.v2 v2.4.0
@@ -57,7 +58,7 @@ require (
 	github.com/imdario/mergo v0.3.13 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/jtolds/gls v4.20.0+incompatible // indirect
-	github.com/klauspost/compress v1.13.6 // indirect
+	github.com/klauspost/compress v1.16.7 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.8 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
@@ -83,7 +84,7 @@ require (
 	github.com/xdg-go/scram v1.1.2 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/xrash/smetrics v0.0.0-20240521201337-686a1a2994c1 // indirect
-	github.com/youmark/pkcs8 v0.0.0-20181117223130-1be2e3e5546d // indirect
+	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
 	go.uber.org/ratelimit v0.2.0 // indirect
 	golang.org/x/arch v0.8.0 // indirect

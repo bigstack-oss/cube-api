@@ -1,6 +1,6 @@
 package runtime
 
-import "github.com/bigstack-oss/cube-cos-api/internal/helpers/log"
+import "github.com/bigstack-oss/bigstack-dependency-go/pkg/log"
 
 var (
 	conf Config

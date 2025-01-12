@@ -1,8 +1,8 @@
 package tuning
 
 import (
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
-	"github.com/bigstack-oss/cube-cos-api/internal/helpers/mongo"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"

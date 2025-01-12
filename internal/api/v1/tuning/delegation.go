@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"net/url"
 
+	cubeHttp "github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	cuberr "github.com/bigstack-oss/cube-cos-api/internal/error"
-	cubeHttp "github.com/bigstack-oss/cube-cos-api/internal/helpers/http"
 	"github.com/bigstack-oss/cube-cos-api/internal/service"
 	log "go-micro.dev/v5/logger"
 )

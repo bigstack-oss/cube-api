@@ -3,8 +3,8 @@ package tuning
 import (
 	"time"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
-	"github.com/bigstack-oss/cube-cos-api/internal/helpers/mongo"
 	"github.com/bigstack-oss/cube-cos-api/internal/service"
 	"k8s.io/client-go/util/workqueue"
 )

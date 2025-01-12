@@ -1,8 +1,8 @@
 package config
 
 import (
-	"github.com/bigstack-oss/cube-cos-api/internal/helpers/log"
-	"github.com/bigstack-oss/cube-cos-api/internal/helpers/mongo"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/log"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	yaml "github.com/go-micro/plugins/v5/config/encoder/yaml"
 	"go-micro.dev/v5/config"
 	"go-micro.dev/v5/config/reader"
