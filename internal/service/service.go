@@ -49,6 +49,7 @@ func runControllers() error {
 		go run(c.Sync)
 		log.Infof("Controller: %s is running", c.Name())
 	}
+
 	return nil
 }
 
@@ -63,5 +64,6 @@ func stopControllers() error {
 		log.Infof("Controller: %s is shutting down", c.Name())
 		c.Stop()
 	}
+
 	return nil
 }

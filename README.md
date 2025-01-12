@@ -1,1 +1,1 @@
-# cube-api
+# cube-cos-api

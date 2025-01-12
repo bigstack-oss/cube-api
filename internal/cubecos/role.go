@@ -3,6 +3,7 @@ package cubecos
 import (
 	"fmt"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/config"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/helpers/openstack"
 	"github.com/bigstack-oss/cube-cos-api/internal/helpers/openstack/accelerators/devices"
@@ -27,7 +28,7 @@ func GetNodeRole() (string, error) {
 }
 
 func IsGPUEnabled() bool {
-	provider, err := openstack.NewProvider()
+	provider, err := openstack.NewProvider(config.Data.Spec.Dependency.Openstack)
 	if err != nil {
 		log.Errorf("failed to create openstack provider: %s", err.Error())
 		return false

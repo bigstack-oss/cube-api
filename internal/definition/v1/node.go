@@ -9,9 +9,11 @@ import (
 )
 
 var (
-	HostID       string
-	Hostname     string
-	IsGPUEnabled bool
+	HostID        string
+	Hostname      string
+	ListenAddr    string
+	AdvertiseAddr string
+	IsGPUEnabled  bool
 )
 
 type Node struct {
@@ -36,7 +38,7 @@ func GenerateNodeHashByMacAddr() (string, error) {
 func GetNodesByRole(svcName string) ([]*Node, error) {
 	svcs, err := registry.GetService(svcName)
 	if err != nil {
-		log.Errorf("Failed to get service %s (%s)", svcName, err.Error())
+		log.Errorf("failed to get service %s (%s)", svcName, err.Error())
 		return nil, err
 	}
 	if len(svcs) == 0 {

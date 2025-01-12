@@ -63,7 +63,7 @@ func GetAllTunings() *sync.Map {
 	return &tuningSpecs
 }
 
-func DoseCurrentRoleShouldHandleTheTuning(tuningName string, roleName string) bool {
+func ShouldCurrentRoleHandleTheTuning(tuningName string, roleName string) bool {
 	val, loaded := tuningSpecs.Load(tuningName)
 	if !loaded {
 		return false

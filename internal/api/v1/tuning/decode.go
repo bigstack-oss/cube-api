@@ -5,7 +5,6 @@ import (
 	"io"
 
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
-	"github.com/bigstack-oss/cube-cos-api/internal/runtime"
 )
 
 func decodeTuningReq(reqBody io.ReadCloser) (*definition.Tuning, error) {
@@ -22,7 +21,7 @@ func decodeTuningReq(reqBody io.ReadCloser) (*definition.Tuning, error) {
 
 	tuning.SetNodeInfo(
 		definition.CurrentRole,
-		runtime.GetAdvertiseAddress(),
+		definition.AdvertiseAddr,
 	)
 
 	return &tuning, nil
@@ -43,7 +42,7 @@ func decodeTuningsReq(reqBody io.ReadCloser) ([]definition.Tuning, error) {
 	for i := range tunings {
 		tunings[i].SetNodeInfo(
 			definition.CurrentRole,
-			runtime.GetAdvertiseAddress(),
+			definition.AdvertiseAddr,
 		)
 	}
 

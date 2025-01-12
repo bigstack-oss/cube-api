@@ -27,20 +27,20 @@ func (c *Controller) syncByDesiredAction(tuning definition.Tuning) error {
 func (c *Controller) deleteTuning(tuning definition.Tuning) error {
 	policy, err := cubecos.GetPolicy()
 	if err != nil {
-		log.Errorf("Failed to get all tunings: %s", err.Error())
+		log.Errorf("failed to get all tunings: %s", err.Error())
 		return err
 	}
 
 	policy.DeleteTuning(tuning.Name)
 	err = cubecos.ApplyHexTunings(policy.Tunings)
 	if err != nil {
-		log.Errorf("Failed to delete tunings: %s", err.Error())
+		log.Errorf("failed to delete tunings: %s", err.Error())
 		return err
 	}
 
 	err = cubecos.IsHexTuningDeleted(tuning)
 	if err != nil {
-		log.Errorf("Failed to check if tuning %s is deleted: %s", tuning.Name, err.Error())
+		log.Errorf("failed to check if tuning %s is deleted: %s", tuning.Name, err.Error())
 		return err
 	}
 
@@ -56,13 +56,13 @@ func (c *Controller) applyTuning(tuning definition.Tuning) error {
 	policy.AppendTunings([]definition.Tuning{tuning})
 	err = cubecos.ApplyHexTunings(policy.Tunings)
 	if err != nil {
-		log.Errorf("Failed to apply tuning %s: %s", tuning.Name, err.Error())
+		log.Errorf("failed to apply tuning %s: %s", tuning.Name, err.Error())
 		return err
 	}
 
 	err = cubecos.IsHexTuningApplied(tuning)
 	if err != nil {
-		log.Errorf("Failed to check if tuning %s is applied: %s", tuning.Name, err.Error())
+		log.Errorf("failed to check if tuning %s is applied: %s", tuning.Name, err.Error())
 		return err
 	}
 

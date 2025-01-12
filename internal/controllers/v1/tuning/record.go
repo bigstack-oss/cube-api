@@ -27,13 +27,13 @@ func (c *Controller) handleApplyingExit(tuning definition.Tuning, err error) {
 		tuning.Status.Current = status.Completed
 	} else {
 		tuning.Status.Current = status.Error
-		log.Errorf("Failed to %s tuning %s: %s", tuning.Status.Desired, tuning.Name, err.Error())
+		log.Errorf("failed to %s tuning %s: %s", tuning.Status.Desired, tuning.Name, err.Error())
 	}
 
 	tuning.Status.ClearDesired()
 	err = c.updateTuningResult(tuning)
 	if err != nil {
-		log.Errorf("Failed to update tuning result %s: %s", tuning.Name, err.Error())
+		log.Errorf("failed to update tuning result %s: %s", tuning.Name, err.Error())
 	}
 }
 
@@ -45,7 +45,7 @@ func (c *Controller) deleteTuningResult(tuning definition.Tuning) {
 		filter,
 	)
 	if err != nil {
-		log.Errorf("Failed to delete tuning result %s: %s", tuning.Name, err.Error())
+		log.Errorf("failed to delete tuning result %s: %s", tuning.Name, err.Error())
 	}
 }
 
@@ -56,7 +56,7 @@ func (c *Controller) handleDeletionExit(tuning definition.Tuning, err error) {
 	}
 
 	tuning.Status.Current = status.Error
-	log.Errorf("Failed to %s tuning %s: %s", tuning.Status.Desired, tuning.Name, err.Error())
+	log.Errorf("failed to %s tuning %s: %s", tuning.Status.Desired, tuning.Name, err.Error())
 }
 
 func (c *Controller) handleExit(tuning definition.Tuning, err error) {

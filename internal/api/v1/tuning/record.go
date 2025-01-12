@@ -25,7 +25,7 @@ func getTuningRecords() ([]definition.Tuning, error) {
 	for _, coll := range colls {
 		cursor, err := db.GetQueryCursor(definition.TuningDB(), coll, bson.M{})
 		if err != nil {
-			log.Errorf("Failed to get cursor for %s (%s)", coll, err.Error())
+			log.Errorf("failed to get cursor for %s (%s)", coll, err.Error())
 			continue
 		}
 
@@ -42,14 +42,14 @@ func appendTuningRecords(cursor *mongo.Cursor, tunings *[]definition.Tuning) {
 	for cursor.Next(context.Background()) {
 		tuning := definition.Tuning{}
 		if err := cursor.Decode(&tuning); err != nil {
-			log.Errorf("Failed to decode tuning record (%s)", err.Error())
+			log.Errorf("failed to decode tuning record (%s)", err.Error())
 			continue
 		}
 
 		*tunings = append(*tunings, tuning)
 	}
 	if cursor.Err() != nil {
-		log.Errorf("Failed to iterate tuning cursor (%s)", cursor.Err().Error())
+		log.Errorf("failed to iterate tuning cursor (%s)", cursor.Err().Error())
 	}
 }
 
@@ -68,7 +68,7 @@ func syncTuningRecord(tuning definition.Tuning) {
 	)
 	if err != nil {
 		log.Errorf(
-			"Failed to sync tuning record for %s (%s)",
+			"failed to sync tuning record for %s (%s)",
 			tuning.Name,
 			err.Error(),
 		)

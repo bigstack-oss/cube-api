@@ -6,6 +6,11 @@ const (
 	Service = "service"
 )
 
+const (
+	BadRequest          = "bad request"
+	InternalServerError = "internal server error"
+)
+
 var (
 	ServiceNotFound     = errors.New("service not found")
 	TuningParamNotFound = errors.New("tuning parameter not found")

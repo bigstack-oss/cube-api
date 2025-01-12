@@ -4,18 +4,60 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/controllers/v1/tuning"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	cuberr "github.com/bigstack-oss/cube-cos-api/internal/error"
 	"github.com/gin-gonic/gin"
 	"github.com/mohae/deepcopy"
 )
 
-const (
-	tunings = definition.Tunings
-)
-
 var (
 	reqQueue = tuning.ReqQueue
+	Handlers = []api.Handler{
+		{
+			Version: api.V1,
+			Method:  http.MethodGet,
+			Path:    "/tunings",
+			Func:    getTunings,
+		},
+		{
+			Version: api.V1,
+			Method:  http.MethodGet,
+			Path:    "/tunings/specs",
+			Func:    getTuningSpecs,
+		},
+		{
+			Version: api.V1,
+			Method:  http.MethodPut,
+			Path:    "/tunings/:ParameterName",
+			Func:    applyTuning,
+		},
+		{
+			Version: api.V1,
+			Method:  http.MethodPut,
+			Path:    "/tunings",
+			Func:    applyTunings,
+		},
+		{
+			Version: api.V1,
+			Method:  http.MethodPut,
+			Path:    "/tunings/:ParameterName/status",
+			Func:    updateTuningStatus,
+		},
+		{
+			Version: api.V1,
+			Method:  http.MethodDelete,
+			Path:    "/tuning/:ParameterName",
+			Func:    deleteTuning,
+		},
+		{
+			Version: api.V1,
+			Method:  http.MethodDelete,
+			Path:    "/tunings",
+			Func:    deleteTunings,
+		},
+	}
 )
 
 func getTunings(c *gin.Context) {
@@ -63,14 +105,25 @@ func applyTuning(c *gin.Context) {
 	if err != nil {
 		c.JSON(
 			http.StatusBadRequest,
-			gin.H{"error": err.Error()},
+			gin.H{
+				"code":   http.StatusBadRequest,
+				"status": cuberr.BadRequest,
+				"msg":    err.Error(),
+			},
 		)
 		return
 	}
 
-	if definition.DoseCurrentRoleShouldHandleTheTuning(tuning.Name, definition.CurrentRole) {
+	if definition.ShouldCurrentRoleHandleTheTuning(tuning.Name, definition.CurrentRole) {
 		delegateToCurrentNode(*tuning)
-		c.JSON(http.StatusOK, gin.H{"message": "tuning applied"})
+		c.JSON(
+			http.StatusOK,
+			gin.H{
+				"code":   http.StatusOK,
+				"status": "success",
+				"msg":    "tuning applied",
+			},
+		)
 		return
 	}
 
@@ -107,7 +160,11 @@ func updateTuningStatus(c *gin.Context) {
 	if err != nil {
 		c.JSON(
 			http.StatusBadRequest,
-			gin.H{"error": err.Error()},
+			gin.H{
+				"code":   http.StatusBadRequest,
+				"status": cuberr.BadRequest,
+				"msg":    err.Error(),
+			},
 		)
 		return
 	}
@@ -118,14 +175,22 @@ func updateTuningStatus(c *gin.Context) {
 	if err != nil {
 		c.JSON(
 			http.StatusInternalServerError,
-			gin.H{"error": err.Error()},
+			gin.H{
+				"code":   http.StatusInternalServerError,
+				"status": cuberr.InternalServerError,
+				"msg":    err.Error(),
+			},
 		)
 		return
 	}
 
 	c.JSON(
 		http.StatusOK,
-		gin.H{"message": "tuning status updated"},
+		gin.H{
+			"code":   http.StatusOK,
+			"status": "success",
+			"msg":    "tuning status updated",
+		},
 	)
 }
 
@@ -134,15 +199,23 @@ func deleteTuning(c *gin.Context) {
 	if err != nil {
 		c.JSON(
 			http.StatusBadRequest,
-			gin.H{"error": err.Error()},
+			gin.H{
+				"code":   http.StatusBadRequest,
+				"status": cuberr.BadRequest,
+				"msg":    err.Error(),
+			},
 		)
 		return
 	}
 
-	if !definition.DoseCurrentRoleShouldHandleTheTuning(tuning.Name, definition.CurrentRole) {
+	if !definition.ShouldCurrentRoleHandleTheTuning(tuning.Name, definition.CurrentRole) {
 		c.JSON(
 			http.StatusBadRequest,
-			gin.H{"error": fmt.Sprintf("role %s is not responsible for tuning %s", definition.CurrentRole, tuning.Name)},
+			gin.H{
+				"code":   http.StatusBadRequest,
+				"status": cuberr.BadRequest,
+				"msg":    fmt.Sprintf("role %s is not responsible for tuning %s", definition.CurrentRole, tuning.Name),
+			},
 		)
 		return
 	}
@@ -152,7 +225,11 @@ func deleteTuning(c *gin.Context) {
 	reqQueue.Add(tuning)
 	c.JSON(
 		http.StatusOK,
-		gin.H{"message": "tuning applied"},
+		gin.H{
+			"code":   http.StatusOK,
+			"status": "success",
+			"msg":    "tuning applied",
+		},
 	)
 }
 
@@ -161,7 +238,11 @@ func deleteTunings(c *gin.Context) {
 	if err != nil {
 		c.JSON(
 			http.StatusBadRequest,
-			gin.H{"error": err.Error()},
+			gin.H{
+				"code":   http.StatusBadRequest,
+				"status": cuberr.BadRequest,
+				"msg":    err.Error(),
+			},
 		)
 		return
 	}
@@ -172,8 +253,9 @@ func deleteTunings(c *gin.Context) {
 	c.JSON(
 		http.StatusOK,
 		gin.H{
-			"code":    http.StatusOK,
-			"message": "request received and deleting",
+			"code":   http.StatusOK,
+			"status": "success",
+			"msg":    "request received and deleting",
 		},
 	)
 }

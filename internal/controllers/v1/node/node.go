@@ -1,10 +1,9 @@
-package tuning
+package node
 
 import (
 	"context"
 
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
-	"github.com/bigstack-oss/cube-cos-api/internal/service"
 	log "go-micro.dev/v5/logger"
 	"go-micro.dev/v5/registry"
 )
@@ -13,8 +12,8 @@ var (
 	module = "node"
 )
 
-func init() {
-	service.RegisterController(module, NewController())
+func Name() string {
+	return module
 }
 
 type Controller struct {
@@ -39,7 +38,7 @@ func (c *Controller) Name() string {
 func (c *Controller) Sync() {
 	watcher, err := registry.Watch()
 	if err != nil {
-		log.Errorf("Failed to create watcher (%s)", err.Error())
+		log.Errorf("failed to create watcher (%s)", err.Error())
 		return
 	}
 
@@ -65,7 +64,7 @@ func (c *Controller) watchAndSyncNodeRoles(watcher *registry.Watcher) {
 	}
 
 	log.Errorf(
-		"Failed to get service discovery event",
+		"failed to get service discovery event",
 		err.Error(),
 	)
 }

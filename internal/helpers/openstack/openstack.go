@@ -5,7 +5,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack"
 	log "go-micro.dev/v5/logger"
@@ -68,8 +67,8 @@ func NewConf(file string) (*Options, error) {
 	return opts, nil
 }
 
-func syncOptions(opts []Option) (*Options, error) {
-	options, err := NewConf(config.Data.Spec.Dependency.Openstack)
+func initOptions(defaultConf string, opts []Option) (*Options, error) {
+	options, err := NewConf(defaultConf)
 	if err != nil {
 		return nil, err
 	}
@@ -81,24 +80,24 @@ func syncOptions(opts []Option) (*Options, error) {
 	return options, nil
 }
 
-func NewProvider(opts ...Option) (*gophercloud.ProviderClient, error) {
-	syncedOpts, err := syncOptions(opts)
+func NewProvider(defaultConf string, opts ...Option) (*gophercloud.ProviderClient, error) {
+	initedOpts, err := initOptions(defaultConf, opts)
 	if err != nil {
 		return nil, err
 	}
 
 	return openstack.AuthenticatedClient(
 		gophercloud.AuthOptions{
-			IdentityEndpoint: syncedOpts.IdentityEndpoint,
-			UserID:           syncedOpts.UserID,
-			Username:         syncedOpts.Username,
-			Password:         syncedOpts.Password,
-			Passcode:         syncedOpts.Passcode,
-			TenantID:         syncedOpts.TenantID,
-			TenantName:       syncedOpts.TenantName,
-			DomainID:         syncedOpts.DomainID,
-			DomainName:       syncedOpts.DomainName,
-			Scope:            syncedOpts.Scope,
+			IdentityEndpoint: initedOpts.IdentityEndpoint,
+			UserID:           initedOpts.UserID,
+			Username:         initedOpts.Username,
+			Password:         initedOpts.Password,
+			Passcode:         initedOpts.Passcode,
+			TenantID:         initedOpts.TenantID,
+			TenantName:       initedOpts.TenantName,
+			DomainID:         initedOpts.DomainID,
+			DomainName:       initedOpts.DomainName,
+			Scope:            initedOpts.Scope,
 		},
 	)
 }

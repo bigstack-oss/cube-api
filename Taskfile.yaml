@@ -15,7 +15,7 @@ tasks:
     - go test -v ./...
   binary:
     cmds:
-    - GOOS=linux GOARCH=amd64 go build -o bin/cube-api cmd/main.go cmd/plugins.go
+    - GOOS=linux GOARCH=amd64 go build -o bin/cube-api cmd/main.go
   update-api-docs:
     cmds:
     - swag init --output ./api -g ./cmd/main.go ./cmd/plugins.go

@@ -5,13 +5,16 @@ import (
 	"os"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
+	apituning "github.com/bigstack-oss/cube-cos-api/internal/api/v1/tuning"
 	"github.com/bigstack-oss/cube-cos-api/internal/auth"
 	apiConf "github.com/bigstack-oss/cube-cos-api/internal/config"
+	"github.com/bigstack-oss/cube-cos-api/internal/controllers/v1/node"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	apihttp "github.com/bigstack-oss/cube-cos-api/internal/helpers/http"
 	"github.com/bigstack-oss/cube-cos-api/internal/helpers/log"
 	"github.com/bigstack-oss/cube-cos-api/internal/helpers/mongo"
+	"github.com/bigstack-oss/cube-cos-api/internal/service"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/micro/plugins/v5/server/http"
@@ -46,7 +49,10 @@ func NewRuntime(conf config.Config) (*server.Server, error) {
 	}
 
 	showPromptMessage()
-	initNodeInfo()
+	initNodeIdentity()
+	initNodeResyncer()
+	initNodeApiHandler()
+
 	return newHttpServer()
 }
 
@@ -76,7 +82,7 @@ func newGlobalHttpHelper() error {
 	return apihttp.NewGlobalHelper()
 }
 
-func initNodeInfo() {
+func initNodeIdentity() {
 	hostname, err := os.Hostname()
 	if err != nil {
 		panic(err)
@@ -95,7 +101,22 @@ func initNodeInfo() {
 	definition.HostID = hostID
 	definition.Hostname = hostname
 	definition.CurrentRole = role
+	definition.ListenAddr = localAddr()
+	definition.AdvertiseAddr = serviceDiscoveryAddr()
 	definition.IsGPUEnabled = cubecos.IsGPUEnabled()
+}
+
+func initNodeResyncer() {
+	service.RegisterController(node.Name(), node.NewController())
+}
+
+func initNodeApiHandler() {
+	api.RegisterHandlersToRoles(
+		definition.Tunings,
+		apituning.Handlers,
+		definition.RoleControl,
+		definition.RoleCompute,
+	)
 }
 
 func newHttpServer() (*server.Server, error) {

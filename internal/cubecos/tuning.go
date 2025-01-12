@@ -935,7 +935,7 @@ func genTuningsAsYaml(tunings []definition.Tuning) ([]byte, error) {
 
 	yml, err := yaml.Marshal(&tuningTemplate)
 	if err != nil {
-		log.Errorf("Failed to marshal batch tuning info: %s", err.Error())
+		log.Errorf("failed to marshal batch tuning info: %s", err.Error())
 		return nil, err
 	}
 
@@ -946,20 +946,20 @@ func writeTuningToFile(tmpDir string, yml []byte) error {
 	fullDir := fmt.Sprintf("%s/tuning", tmpDir)
 	err := os.MkdirAll(fullDir, 0755)
 	if err != nil {
-		log.Errorf("Failed to create isolated tuning directory: %s", err.Error())
+		log.Errorf("failed to create isolated tuning directory: %s", err.Error())
 		return err
 	}
 
 	file, err := os.Create(fmt.Sprintf("%s/tuning1_0.yml", fullDir))
 	if err != nil {
-		log.Errorf("Failed to create isolated tuning file: %s", err.Error())
+		log.Errorf("failed to create isolated tuning file: %s", err.Error())
 		return err
 	}
 
 	defer file.Close()
 	_, err = io.WriteString(file, string(yml))
 	if err != nil {
-		log.Errorf("Failed to write tuning info to isolated file: %s", err.Error())
+		log.Errorf("failed to write tuning info to isolated file: %s", err.Error())
 		return err
 	}
 

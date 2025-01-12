@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 
+	_ "github.com/bigstack-oss/cube-cos-api/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/bigstack-oss/cube-cos-api/internal/runtime"
 	"github.com/bigstack-oss/cube-cos-api/internal/service"

@@ -14,7 +14,7 @@ import (
 
 func delegateTuningsReq(tunings []definition.Tuning) {
 	for _, tuning := range tunings {
-		if definition.DoseCurrentRoleShouldHandleTheTuning(tuning.Name, definition.CurrentRole) {
+		if definition.ShouldCurrentRoleHandleTheTuning(tuning.Name, definition.CurrentRole) {
 			delegateToCurrentNode(tuning)
 		}
 
@@ -45,7 +45,7 @@ func delegateToOtherNodes(tuning definition.Tuning) {
 			continue
 		}
 		log.Errorf(
-			"Failed to get nodes by role(%s): %s",
+			"failed to get nodes by role(%s): %s",
 			role,
 			err.Error(),
 		)
@@ -62,7 +62,7 @@ func sendTuningToOtherNodes(tuning definition.Tuning, nodes []definition.Node) {
 		}
 
 		log.Errorf(
-			"Failed to send tuning %s to node %s: %d %s",
+			"failed to send tuning %s to node %s: %d %s",
 			tuning.Name,
 			node.ID,
 			resp.StatusCode(),
